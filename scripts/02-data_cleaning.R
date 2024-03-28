@@ -48,7 +48,7 @@ ward_name_data <-
 
 # Read and clean 2021 Canada census data
 
-census_data <- read_csv("inputs/data/raw_census_data.csv")
+census_data <- read_csv("data/raw_data/raw_census_data.csv")
 
 # Get subset of data covering total population and population under 14 by ward 
 population_data <- census_data[c(19:21),c(1,3:27)]
@@ -56,10 +56,9 @@ population_data <- census_data[c(19:21),c(1,3:27)]
 # Get subset of data covering average/total/and median household incomes by ward
 income_data <- census_data[c(1383:1384),c(1,3:27)]
 
-# Get subset of data covering non-native english speakers by ward
-income_data <- census_data[c(1:1),c(1,3:27)]
-
-
+# Get subset of data covering households where English is not spoken at home by ward
+language_data <- census_data[c(655:660),c(1,3:27)]
+language_data
 
 # Merges income and population subsets together 
 census_data_merged <- rbind(population_data, income_data)
