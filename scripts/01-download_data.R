@@ -46,6 +46,7 @@ raw_ward_names <- get_resource("ea4cc466-bd4d-40c6-a616-7abfa9d7398f")
 
 
 # Download Ward Map Data (25-Ward Model) data set from opndatatoronto
+# Follows directions in "For Developers" section
 
 # get package
 package <- show_package("5e7a8234-f805-43ac-820f-03d7c360b588")
