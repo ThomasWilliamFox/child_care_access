@@ -9,16 +9,17 @@
 
 
 #### Workspace setup ####
+library(arrow)
 library(tidyverse)
 library(rstanarm)
 
 #### Read data ####
-analysis_data <- read_csv("data/analysis_data/analysis_data.csv")
+analysis_data <- read_parquet("data/analysis_data/analysis_data.parquet")
 
 ### Model data ####
 first_model <-
   stan_glm(
-    formula = flying_time ~ length + width,
+    formula = certainty ~ guessed_correct,
     data = analysis_data,
     family = gaussian(),
     prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
