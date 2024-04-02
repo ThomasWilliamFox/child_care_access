@@ -60,6 +60,32 @@ ward_names = read_parquet(
 )
 ```
 
+```{r}
+merged_ward_childcare |>
+  ggplot(aes(x = reorder(ward, 1:25), y = official/total*100)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(x = "Ward", y = "Proportion of English speaking households (%)")
+```
+
+```{r}
+merged_ward_childcare |>
+  ggplot(aes(x = avg_hh_income, y = total_under_15/total_spots)) +
+  geom_point(fill = "black", size = 1, shape = 23) +
+  geom_smooth(method = lm, color = "black") +
+  theme_minimal() +
+  labs(x = "Average income by ward", y = "Children per child care space") 
+```
+
+
+```{r}
+merged_ward_childcare |>
+  ggplot(aes(x = official/total*100, y = total_under_15/total_spots)) +
+  geom_point(fill = "black", size = 1, shape = 23) +
+  geom_smooth(method = lm, color = "black") +
+  theme_minimal() +
+  labs(x = "Proportion of English speaking households by ward (%)", y = "Children per child care space") 
+```
 
 ```{r}
 child_care_data
