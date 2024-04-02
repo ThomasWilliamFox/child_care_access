@@ -1,10 +1,9 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
+title: "Child Care Access in Toronto's 25 Wards"
+subtitle: ""
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: LINK."
+  - Thomas Fox
+thanks: "Code and data are available at: https://github.com/ThomasWilliamFox/child_care_access.git."
 date: today
 date-format: long
 abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
@@ -19,7 +18,54 @@ bibliography: references.bib
 #| message: false
 
 library(tidyverse)
+library(arrow)
+library(here)
 library(palmerpenguins)
+```
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+#| echo: false
+
+#### Load data ####
+
+# read child care data
+
+child_care_data = read_parquet(
+  file = here("data/analysis_data/census_data.parquet"),
+  show_col_types = FALSE
+)
+
+# read census ward data 
+
+ward_data = read_parquet(
+  file = here("data/analysis_data/child_care_data.parquet"),
+  show_col_types = FALSE
+)
+
+# read merged data 
+
+merged_ward_childcare = read_parquet(
+  file = here("data/analysis_data/merged_ward_data.parquet"),
+  show_col_types = FALSE
+)
+
+# read names data
+
+ward_names = read_parquet(
+  file = here("data/analysis_data/ward_names.parquet"),
+  show_col_types = FALSE
+)
+```
+
+
+```{r}
+child_care_data
+ward_data
+merged_ward_childcare
+ward_names
 ```
 
 

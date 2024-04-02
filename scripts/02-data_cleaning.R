@@ -93,7 +93,7 @@ cleaned_census_data <-
     ward = as.character(ward)
   ) 
 
-# Rename variable names 
+# Rename variables
 cleaned_census_data <-
   cleaned_census_data |>
   rename(pop_0_to_4 = `0 to 4 years`,
@@ -122,26 +122,22 @@ cleaned_census_data <-
     french = as.numeric(french)
   ) 
 
-cleaned_census_data |> sum(total)
-
 # Add total child care spots count and total child population to census data
 merged_census_childcare <- cbind(cleaned_census_data, summarized_child_care_data["total_spots"])
 merged_census_childcare <- cbind(merged_census_childcare, total_under_15 = rowSums(merged_census_childcare[2:4]))
+# Rearrange columns
 
 #### Save data ####
 
 # Save cleaned child care data 
-write_parquet(cleaned_childcare_data, "data/analysis_data/child_care_data.csv")
+write_parquet(cleaned_childcare_data, "data/analysis_data/child_care_data.parquet")
 
 # Save cleaned ward census data 
-write_parquet(cleaned_census_data, "data/analysis_data/census_data.csv")
+write_parquet(cleaned_census_data, "data/analysis_data/census_data.parquet")
 
 # Save cleaned ward name data 
 write_parquet(ward_name_data, "data/analysis_data/ward_names.parquet")
 
 # Save merged child care spots and ward census data 
-write_parquet(merged_census_childcare, "data/analysis_data/merged_ward_data.csv")
-
-# Save ward map location data 
-write_parquet(ward_map_data, "data/analysis_data/ward_map_data.csv")
+write_parquet(merged_census_childcare, "data/analysis_data/merged_ward_data.parquet")
 
