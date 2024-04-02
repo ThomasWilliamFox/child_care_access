@@ -17,26 +17,31 @@ library(janitor)
 
 # Read childcare data
 
-childcare_data <- read_csv("inputs/data/raw_childcare_data.csv")
+childcare_data <- read_csv("data/raw_data/raw_childcare_data.csv")
 names(childcare_data)
 
 # Clean child care data, all names to lower case
-# Select center id, ward number, total spaces, and type(non-profit/commercial)
-cleaned_childcare_data <- 
-  clean_names(data) |>
-  select(x_id, ward, totspace, auspice) 
+# Select center id, ward number, total spaces, type(non-profit/commercial), 
+# fee subsidy contract (Y/N), CWELCC (Y/N), and co-ordinates 
 
-# Summarize child data by total spots
-summarized_child_care_data <-
+cleaned_childcare_data <- 
+  clean_names(childcare_data) |>
+  select(x_id, ward, totspace, auspice, subsidy, cwelcc_flag, geometry) 
+
+# Summarize child data by number of centres with subsidies, centres with 
+# CWELCC, and total spots by ward
+ward_child_care_data <-
   cleaned_childcare_data |>
-  summarise(total_spots = sum(totspace),
+  summarise(centres = sum(subsidy == "Y" | subsidy == "N"),
+            subsidy = sum(subsidy == "Y"),
+            cwelcc = sum(cwelcc_flag == "Y"),
+            total_spots = sum(totspace),
             .by = ward) 
 
 # Order summarized child care data by ward number
-summarized_child_care_data <-
-  summarized_child_care_data |>
-  arrange(summarized_child_care_data, ward)
-summarized_child_care_data
+ward_child_care_data <-
+  ward_child_care_data |>
+  arrange(ward_child_care_data, ward)
 
 # Read and clean ward name data 
 
@@ -44,7 +49,6 @@ ward_name_data <- read_csv("data/raw_data/raw_ward_names.csv")
 
 ward_name_data <- 
   clean_names(ward_name_data)
-
 
 # Read and clean 2021 Canada census data
 
@@ -56,12 +60,13 @@ population_data <- census_data[c(19:21),c(1,3:27)]
 # Get subset of data covering average/total/and median household incomes by ward
 income_data <- census_data[c(1383:1384),c(1,3:27)]
 
-# Get subset of data covering households where English is not spoken at home by ward
-language_data <- census_data[c(655:660),c(1,3:27)]
-language_data
+# Get subset of data covering households where English or French are not primarily 
+# spoken at home by ward
+language_data <- census_data[c(655,657:659),c(1,3:27)]
+head(language_data)
 
 # Merges income and population subsets together 
-census_data_merged <- rbind(population_data, income_data)
+census_data_merged <- rbind(population_data, income_data, language_data)
 
 # Transposes x and y axis  
 cleaned_census_data_temp <- t(census_data_merged)
@@ -95,7 +100,11 @@ cleaned_census_data <-
          pop_5_to_9 = `5 to 9 years`,
          pop_10_to_14 = `10 to 14 years`,
          avg_hh_income = `Average total income of households in 2020 ($)`,
-         med_hh_income = `Median total income of households in 2020 ($)`
+         med_hh_income = `Median total income of households in 2020 ($)`,
+         total = `Total - Language spoken most often at home for the population in private households - 25% sample data`,
+         official = `Official languages`,
+         english = `English`,
+         french = `French`
   )
 
 # Convert all numerical columns to int or num 
@@ -106,9 +115,14 @@ cleaned_census_data <-
     pop_5_to_9 = as.integer(pop_5_to_9),
     pop_10_to_14 = as.integer(pop_10_to_14),
     avg_hh_income = as.numeric(avg_hh_income),
-    med_hh_income = as.numeric(med_hh_income)
+    med_hh_income = as.numeric(med_hh_income),
+    total = as.numeric(total),
+    official = as.numeric(official),
+    english = as.numeric(english),
+    french = as.numeric(french)
   ) 
 
+cleaned_census_data |> sum(total)
 
 # Add total child care spots count and total child population to census data
 merged_census_childcare <- cbind(cleaned_census_data, summarized_child_care_data["total_spots"])
