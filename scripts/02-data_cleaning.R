@@ -16,14 +16,12 @@ library(janitor)
 #### Clean data ####
 
 # Read childcare data
-
 childcare_data <- read_csv("data/raw_data/raw_childcare_data.csv")
 names(childcare_data)
 
 # Clean child care data, all names to lower case
 # Select center id, ward number, total spaces, type(non-profit/commercial), 
 # fee subsidy contract (Y/N), CWELCC (Y/N), and co-ordinates 
-
 cleaned_childcare_data <- 
   clean_names(childcare_data) |>
   select(x_id, ward, totspace, auspice, subsidy, cwelcc_flag, geometry) 
@@ -43,15 +41,14 @@ ward_child_care_data <-
   ward_child_care_data |>
   arrange(ward_child_care_data, ward)
 
-# Read and clean ward name data 
-
+# Read ward name data
 ward_name_data <- read_csv("data/raw_data/raw_ward_names.csv")
 
+# Clean ward name data 
 ward_name_data <- 
   clean_names(ward_name_data)
 
 # Read and clean 2021 Canada census data
-
 census_data <- read_csv("data/raw_data/raw_census_data.csv")
 
 # Get subset of data covering total population and population under 14 by ward 
@@ -123,9 +120,11 @@ cleaned_census_data <-
   ) 
 
 # Add total child care spots count and total child population to census data
-merged_census_childcare <- cbind(cleaned_census_data, summarized_child_care_data["total_spots"])
+merged_census_childcare <- cbind(cleaned_census_data, ward_child_care_data["total_spots"])
 merged_census_childcare <- cbind(merged_census_childcare, total_under_15 = rowSums(merged_census_childcare[2:4]))
+
 # Rearrange columns
+merged_census_childcare <- 
 
 #### Save data ####
 
