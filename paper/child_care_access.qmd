@@ -1,0 +1,333 @@
+---
+title: "Child Care Access in Toronto's 25 Wards"
+subtitle: ""
+author: 
+  - Thomas Fox
+thanks: "Code and data are available at: https://github.com/ThomasWilliamFox/child_care_access.git."
+date: today
+date-format: long
+abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+format: pdf
+number-sections: true
+bibliography: references.bib
+toc: True 
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(arrow)
+library(here)
+library(palmerpenguins)
+library(ggmap)
+library(maps)
+library(knitr)
+```
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+#| echo: false
+
+#### Load data ####
+
+# read child care data
+
+child_care_data = read_parquet(
+  file = here("data/analysis_data/child_care_data.parquet"),
+  show_col_types = FALSE
+)
+
+# read summarized child care data 
+
+summarized_child_care_data = read_parquet(
+  file = here("data/analysis_data/ward_child_care_data.parquet"),
+  show_col_types = FALSE
+)
+
+# read census ward data 
+
+ward_data = read_parquet(
+  file = here("data/analysis_data/census_data.parquet"),
+  show_col_types = FALSE
+)
+
+# read merged data 
+
+merged_ward_childcare = read_parquet(
+  file = here("data/analysis_data/merged_ward_data.parquet"),
+  show_col_types = FALSE
+)
+
+# read names data
+
+ward_names = read_parquet(
+  file = here("data/analysis_data/ward_names.parquet"),
+  show_col_types = FALSE
+)
+```
+
+# Introduction
+
+Using @citeR and @rohan.
+
+The remainder of this paper is structured as follows. @sec-data....
+
+# Data {#sec-data}
+## Child Care Centres {#sec-childcare}
+
+```{r}
+#| label: tbl-childcaredata
+#| tbl-cap: Sample of Cleaned Toronto Licensed Child Care Centre Data
+#| echo: false
+#| warning: false
+
+child_care_table <- 
+  child_care_data |>
+  select(x_id, ward, totspace, auspice, subsidy, cwelcc_flag)
+
+head(child_care_table, 6) |>
+  kable(
+    col.names = c("Facility ID", " Ward Number", "Total Spaces", "Type", "Subsidy", "SWELCC"),
+    booktabs = TRUE
+  )
+
+```
+
+```{r out.width = '100%', fig.fullwidth = TRUE}
+#| label: fig-map
+#| fig-cap: Child care centres in Toronto
+#| warning: false
+#| message: false
+#| echo: false
+
+# Use google maps for box co-ordinates
+bbox_toronto <- c(left =-79.707692514001, bottom = 43.57044, right = -79.026000099990, top = 43.85690373064596)
+
+# Adds API key following instructions found here: https://tellingstorieswithdata.com/05-static_communication.html#maps
+register_stadiamaps(key = "1662b375-446a-4847-acf3-831fb1381f2b", write = TRUE)
+
+# Builds map using box co-ordinates
+toronto_stamen_map <- get_stadiamap(bbox_toronto, zoom = 12, maptype = "stamen_toner_lite", crop = TRUE)
+
+# Builds map with child care centres plotted
+ggmap(toronto_stamen_map, extent = "panel", maprange = FALSE) +
+  geom_point(data = child_care_data,
+             aes(x = as.double(x), y = as.double(y), colour = ward),
+             alpha = 0.7, size = .3, show.legend = FALSE) +
+  labs(x = "Longitude", y = "Latitude") + 
+  theme(axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 8))
+  
+```
+
+## Toronto Ward Data {#sec-warddata}
+
+```{r}
+#| label: tbl-warddata
+#| tbl-cap: Sample of Cleaned Toronto Ward Data
+#| echo: false
+#| warning: false
+
+ward_data_table <- 
+  merged_ward_childcare |>
+  select(ward, total, total_under_15, avg_hh_income, med_hh_income, english, visible_minority)
+
+head(ward_data_table, 6) |>
+  kable(
+    col.names = c("Ward", "Total Population", "Children under 15", "Average Household Income", "Median Household Income", "English spoken most often in household", "Population identifying as visible minority"),
+    booktabs = TRUE
+  )
+
+```
+
+# Model
+
+The goal of our modelling strategy is twofold. Firstly,...
+
+Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
+
+## Model set-up
+
+Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
+
+\begin{align} 
+y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
+\mu_i &= \alpha + \beta_i + \gamma_i\\
+\alpha &\sim \mbox{Normal}(0, 2.5) \\
+\beta &\sim \mbox{Normal}(0, 2.5) \\
+\gamma &\sim \mbox{Normal}(0, 2.5) \\
+\sigma &\sim \mbox{Exponential}(1)
+\end{align}
+
+We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
+
+### Model justification
+
+We expect a negative relationship between average household income and the number of children per child care space by ward. In particular...
+
+We can use maths by including latex between dollar signs, for instance $\theta$.
+
+# Results
+
+```{r}
+#| label: fig-incomespaces
+#| fig-cap: Relationship between wing length and width
+#| warning: false
+#| message: false
+#| echo: false
+merged_ward_childcare |>
+  ggplot(aes(x = avg_hh_income, y = total_under_15/total_spots)) +
+  geom_point(fill = "black", size = 1, shape = 23) +
+  geom_smooth(method = lm, color = "black") +
+  theme_minimal() +
+  labs(x = "Average income by ward", y = "Children per child care space") 
+```
+
+```{r}
+#| label: fig-languagespaces
+#| fig-cap: Relationship between wing length and width
+#| warning: false
+#| message: false
+#| echo: false
+merged_ward_childcare |>
+  ggplot(aes(x = english/total*100, y = total_under_15/total_spots)) +
+  geom_point(fill = "black", size = 1, shape = 23) +
+  geom_smooth(method = lm, color = "black") +
+  theme_minimal() +
+  labs(x = "Proportion of English speaking households by ward (%)", y = "Children per child care space") 
+```
+
+```{r}
+#| label: fig-nonminorityspaces
+#| fig-cap: Relationship between wing length and width
+#| warning: false
+#| message: false
+#| echo: false
+merged_ward_childcare |>
+  ggplot(aes(x = ((total-visible_minority)/total)*100, y = total_under_15/total_spots)) +
+  geom_point(fill = "black", size = 1, shape = 23) +
+  geom_smooth(method = lm, color = "black") +
+  theme_minimal() +
+  labs(x = "Porportion of ward population that is not a visible minority", y = "Children per child care space") 
+```  
+
+Our results are summarized in @tbl-modelresults.
+
+```{r}
+#| include: false
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+#library(rstanarm)
+
+#first_model <-
+#  readRDS(file = here::here("models/first_model.rds"))
+```
+
+```{r}
+#| include: false
+#| echo: false
+#| eval: true
+#| label: tbl-modelresults
+#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
+#| warning: false
+
+#modelsummary::modelsummary(
+#  list(
+#    "First model" = first_model
+#  ),
+#  statistic = "mad",
+#  fmt = 2
+#)
+```
+
+
+# Discussion
+
+## First discussion point {#sec-first-point}
+
+The discussion is a chance to show off what you know and what you learnt from all this. 
+
+## Second discussion point
+
+## Third discussion point
+
+## Weaknesses and next steps
+
+
+\newpage
+
+\appendix
+
+# Appendix {-}
+
+
+# Additional data details
+
+# Model details {#sec-model-details}
+
+## Posterior predictive check
+
+In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
+
+In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
+
+```{r}
+#| include: false
+#| eval: true
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-ppcheckandposteriorvsprior
+#| layout-ncol: 2
+#| fig-cap: "Examining how the model fits, and is affected by, the data"
+#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
+
+#pp_check(first_model) +
+#  theme_classic() +
+#  theme(legend.position = "bottom")
+
+#posterior_vs_prior(first_model) +
+#  theme_minimal() +
+#  scale_color_brewer(palette = "Set1") +
+#  theme(legend.position = "bottom") +
+#  coord_flip()
+```
+
+## Diagnostics
+
+@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
+
+@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
+
+```{r}
+#| include: false
+#| echo: false
+#| eval: true
+#| message: false
+#| warning: false
+#| label: fig-stanareyouokay
+#| fig-cap: "Checking the convergence of the MCMC algorithm"
+#| fig-subcap: ["Trace plot", "Rhat plot"]
+#| layout-ncol: 2
+
+#plot(first_model, "trace")
+
+#plot(first_model, "rhat")
+```
+
+
+
+\newpage
+
+
+# References
+
+

@@ -1,5 +1,5 @@
 #### Preamble ####
-# Purpose: Cleans the raw census, childcare, and ward map data from opendatatoronto
+# Purpose: Cleans the raw ward and childcare data from opendatatoronto
 # Author: Thomas Fox
 # Date: 28 March 2024
 # Contact: thomas.fox@mail.utoronto.ca
@@ -24,7 +24,15 @@ names(childcare_data)
 # fee subsidy contract (Y/N), CWELCC (Y/N), and co-ordinates 
 cleaned_childcare_data <- 
   clean_names(childcare_data) |>
-  select(x_id, ward, totspace, auspice, subsidy, cwelcc_flag, geometry) 
+  select(x_id, ward, totspace, auspice, subsidy, cwelcc_flag, geometry) |>
+  
+  # Cleans co-ordinates and separates x and y using https://regex-generator.olafneumann.org/
+  mutate(geometry = str_remove(geometry, "\\{'type': 'MultiPoint', 'coordinates': "))|>
+  mutate(geometry = str_remove(geometry, "\\[\\["))|>
+  mutate(geometry = str_remove(geometry, "\\]\\]\\}"))|>
+  mutate(x = str_extract(geometry, "([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?")) |>
+  mutate(y = str_remove(geometry, "([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?")) |>
+  mutate(y = str_remove(y, "\\, ")) 
 
 # Summarize child data by number of centres with subsidies, centres with 
 # CWELCC, and total spots by ward
@@ -62,8 +70,13 @@ income_data <- census_data[c(1383:1384),c(1,3:27)]
 language_data <- census_data[c(655,657:659),c(1,3:27)]
 head(language_data)
 
+# Get subset of data covering visible minority population
+visible_minority_data <- census_data[c(1285),c(1,3:27)]
+head(visible_minority_data)
+
+
 # Merges income and population subsets together 
-census_data_merged <- rbind(population_data, income_data, language_data)
+census_data_merged <- rbind(population_data, income_data, language_data, visible_minority_data)
 
 # Transposes x and y axis  
 cleaned_census_data_temp <- t(census_data_merged)
@@ -101,7 +114,8 @@ cleaned_census_data <-
          total = `Total - Language spoken most often at home for the population in private households - 25% sample data`,
          official = `Official languages`,
          english = `English`,
-         french = `French`
+         french = `French`,
+         visible_minority = `Total visible minority population`
   )
 
 # Convert all numerical columns to int or num 
@@ -116,7 +130,8 @@ cleaned_census_data <-
     total = as.numeric(total),
     official = as.numeric(official),
     english = as.numeric(english),
-    french = as.numeric(french)
+    french = as.numeric(french),
+    visible_minority = as.numeric(visible_minority)
   ) 
 
 # Add total child care spots count and total child population to census data
@@ -124,12 +139,15 @@ merged_census_childcare <- cbind(cleaned_census_data, ward_child_care_data["tota
 merged_census_childcare <- cbind(merged_census_childcare, total_under_15 = rowSums(merged_census_childcare[2:4]))
 
 # Rearrange columns
-merged_census_childcare <- 
+merged_census_childcare 
 
 #### Save data ####
 
 # Save cleaned child care data 
 write_parquet(cleaned_childcare_data, "data/analysis_data/child_care_data.parquet")
+
+# Save child care data summarized by ward
+write_parquet(ward_child_care_data, "data/analysis_data/ward_child_care_data.parquet")
 
 # Save cleaned ward census data 
 write_parquet(cleaned_census_data, "data/analysis_data/census_data.parquet")

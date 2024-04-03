@@ -44,25 +44,6 @@ raw_census_data <-census_data[[1]]
 # Ward names and corresponding numbers data
 raw_ward_names <- get_resource("ea4cc466-bd4d-40c6-a616-7abfa9d7398f")
 
-
-# Download Ward Map Data (25-Ward Model) data set from opndatatoronto
-# Follows directions in "For Developers" section
-
-# get package
-package <- show_package("5e7a8234-f805-43ac-820f-03d7c360b588")
-package
-
-# get all resources for this package
-resources <- list_package_resources("5e7a8234-f805-43ac-820f-03d7c360b588")
-
-# identify datastore resources; by default, Toronto Open Data sets datastore resource format to CSV for non-geospatial and GeoJSON for geospatial resources
-datastore_resources <- filter(resources, tolower(format) %in% c('csv', 'geojson'))
-
-# load the first datastore resource as a sample
-raw_map_data <- filter(datastore_resources, row_number()==1) %>% get_resource()
-raw_map_data
-
-
 #### Save data ####
 
 # Write raw child care data to data inputs folder 
@@ -74,5 +55,3 @@ write_csv(raw_census_data, "data/raw_data/raw_census_data.csv")
 # Write raw ward names and numbers to data inputs folder 
 write_csv(raw_ward_names, "data/raw_data/raw_ward_names.csv")
 
-# Write raw ward areas to data inputs folder 
-write_csv(raw_map_data, "data/raw_data/raw_ward_map.csv")
