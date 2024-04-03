@@ -75,12 +75,12 @@ ward_names = read_parquet(
 
 Using @citeR and @rohan.
 
-The paper's estimand is that average household income has a negative relationship with to the number of children per child care space by ward. 
+The paper's estimand is that average household income has a negative relationship with the number of children per child care space by ward. 
 
 The remainder of this paper is structured as follows. @sec-data....
 
 # Data {#sec-data}
-## Child Care Centres {#sec-childcare}
+## Licensed Child Care Centres {#sec-childcare}
 
 ```{r}
 #| label: tbl-childcaredata
@@ -100,7 +100,7 @@ head(child_care_table, 6) |>
 
 ```
 
-```{r out.width = '100%', fig.fullwidth = TRUE}
+```{r out.width = '100%'}
 #| label: fig-map
 #| fig-cap: Child care centres in Toronto
 #| warning: false
@@ -108,7 +108,7 @@ head(child_care_table, 6) |>
 #| echo: false
 
 # Use google maps for box co-ordinates
-bbox_toronto <- c(left =-79.707692514001, bottom = 43.57044, right = -79.026000099990, top = 43.85690373064596)
+bbox_toronto <- c(left =-79.669692514001, bottom = 43.57044, right = -79.096000099990, top = 43.85090373064596)
 
 # Adds API key following instructions found here: https://tellingstorieswithdata.com/05-static_communication.html#maps
 register_stadiamaps(key = "1662b375-446a-4847-acf3-831fb1381f2b", write = TRUE)
@@ -120,14 +120,14 @@ toronto_stamen_map <- get_stadiamap(bbox_toronto, zoom = 12, maptype = "stamen_t
 ggmap(toronto_stamen_map, extent = "panel", maprange = FALSE) +
   geom_point(data = child_care_data,
              aes(x = as.double(x), y = as.double(y), colour = ward),
-             alpha = 0.7, size = .3, show.legend = FALSE) +
+             alpha = 0.7, size = log(child_care_data$totspace)*.22, show.legend = FALSE) +
   labs(x = "Longitude", y = "Latitude") + 
   theme(axis.text.x = element_text(size = 8),
         axis.text.y = element_text(size = 8))
   
 ```
 
-## Toronto Ward Data {#sec-warddata}
+## Toronto Ward Profiles {#sec-warddata}
 
 ```{r}
 #| label: tbl-warddata
