@@ -6,7 +6,7 @@ author:
 thanks: "Code and data are available at: https://github.com/ThomasWilliamFox/child_care_access.git."
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "Child care is a fundamental factor impacting the well being of families as well as the children attending these facilities. This paper examines the accessibility of licensed child care centres in Toronto. Findings indicate that there are less children per child care space in wards with higher household incomes, higher proportions of English speaking households, and lower proprotions of population identifying as racialized. These findings point to inequitable access across a variety of factors and support initiatives aimed at increasing access to licensed child care in the City of Toronto."
 format: pdf
 number-sections: true
 bibliography: references.bib
