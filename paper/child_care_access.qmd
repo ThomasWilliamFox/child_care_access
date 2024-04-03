@@ -1,6 +1,6 @@
 ---
-title: "Child Care Access in Toronto's 25 Wards"
-subtitle: ""
+title: "Inequitable Access"
+subtitle: "An Analysis of Licenced Child Care in Toronto's 25 Wards"
 author: 
   - Thomas Fox
 thanks: "Code and data are available at: https://github.com/ThomasWilliamFox/child_care_access.git."
@@ -75,6 +75,8 @@ ward_names = read_parquet(
 
 Using @citeR and @rohan.
 
+The paper's estimand is that average household income has a negative relationship with to the number of children per child care space by ward. 
+
 The remainder of this paper is structured as follows. @sec-data....
 
 # Data {#sec-data}
@@ -139,7 +141,7 @@ ward_data_table <-
 
 head(ward_data_table, 6) |>
   kable(
-    col.names = c("Ward", "Total Population", "Children under 15", "Average Household Income", "Median Household Income", "English spoken most often in household", "Population identifying as visible minority"),
+    col.names = c("Ward", "Total Population", "Children under 15", "Average Household Income", "Median Household Income", "English spoken most often in household", "Population identifying as racialized"),
     booktabs = TRUE
   )
 
@@ -176,7 +178,7 @@ We can use maths by including latex between dollar signs, for instance $\theta$.
 
 ```{r}
 #| label: fig-incomespaces
-#| fig-cap: Relationship between wing length and width
+#| fig-cap: Relationship between income and child care spaces
 #| warning: false
 #| message: false
 #| echo: false
@@ -190,7 +192,7 @@ merged_ward_childcare |>
 
 ```{r}
 #| label: fig-languagespaces
-#| fig-cap: Relationship between wing length and width
+#| fig-cap: Relationship between language and child care spaces
 #| warning: false
 #| message: false
 #| echo: false
@@ -204,7 +206,7 @@ merged_ward_childcare |>
 
 ```{r}
 #| label: fig-nonminorityspaces
-#| fig-cap: Relationship between wing length and width
+#| fig-cap: Relationship between non-racialized population by ward and child care spaces
 #| warning: false
 #| message: false
 #| echo: false
@@ -213,7 +215,7 @@ merged_ward_childcare |>
   geom_point(fill = "black", size = 1, shape = 23) +
   geom_smooth(method = lm, color = "black") +
   theme_minimal() +
-  labs(x = "Porportion of ward population that is not a visible minority", y = "Children per child care space") 
+  labs(x = "Porportion of ward population identified as non-racialized (%)", y = "Children per child care space") 
 ```  
 
 Our results are summarized in @tbl-modelresults.
