@@ -14,13 +14,18 @@ library(tidyverse)
 library(rstanarm)
 
 #### Read data ####
-analysis_data <- read_parquet("data/analysis_data/analysis_data.parquet")
+merged_data <- read_parquet("data/analysis_data/merged_ward_data.parquet") 
+merged_data <-
+  merged_data |>
+  mutate(prop = total_under_15 / total_spots)
+
+merged_data
 
 ### Model data ####
 first_model <-
   stan_glm(
-    formula = certainty ~ guessed_correct,
-    data = analysis_data,
+    formula = prop ~ avg_hh_income,
+    data = merged_data,
     family = gaussian(),
     prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
     prior_intercept = normal(location = 0, scale = 2.5, autoscale = TRUE),

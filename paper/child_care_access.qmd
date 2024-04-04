@@ -27,6 +27,7 @@ library(palmerpenguins)
 library(ggmap)
 library(maps)
 library(knitr)
+library(rstanarm)
 ```
 
 ```{r}
@@ -64,6 +65,13 @@ merged_ward_childcare = read_parquet(
   file = here("data/analysis_data/merged_ward_data.parquet"),
   show_col_types = FALSE
 )
+
+merged_data <- read_parquet(here::here("data/analysis_data/merged_ward_data.parquet"))
+merged_data <-
+  merged_data |>
+  mutate(prop = total_under_15 / total_spots)
+
+merged_data
 
 # read names data
 
@@ -125,8 +133,8 @@ toronto_stamen_map <- get_stadiamap(bbox_toronto, zoom = 12, maptype = "stamen_t
 # Builds map with child care centres plotted
 ggmap(toronto_stamen_map, extent = "panel", maprange = FALSE) +
   geom_point(data = child_care_data,
-             aes(x = as.double(x), y = as.double(y), colour = ward),
-             alpha = 0.7, size = log(child_care_data$totspace)*.22, show.legend = FALSE) +
+             aes(x = as.double(x), y = as.double(y)),
+             alpha = 0.7, size = log(child_care_data$totspace)*.20, show.legend = FALSE) +
   labs(x = "Longitude", y = "Latitude") + 
   theme(axis.text.x = element_text(size = 8),
         axis.text.y = element_text(size = 8))
@@ -190,6 +198,7 @@ We can use maths by including latex between dollar signs, for instance $\theta$.
 #| warning: false
 #| message: false
 #| echo: false
+
 merged_ward_childcare |>
   ggplot(aes(x = avg_hh_income, y = total_under_15/total_spots)) +
   geom_point(fill = "black", size = 1, shape = 23) +
@@ -204,6 +213,7 @@ merged_ward_childcare |>
 #| warning: false
 #| message: false
 #| echo: false
+
 merged_ward_childcare |>
   ggplot(aes(x = english/total*100, y = total_under_15/total_spots)) +
   geom_point(fill = "black", size = 1, shape = 23) +
@@ -235,27 +245,27 @@ Our results are summarized in @tbl-modelresults.
 #| warning: false
 #| message: false
 
-#library(rstanarm)
+library(rstanarm)
 
-#first_model <-
-#  readRDS(file = here::here("models/first_model.rds"))
+first_model <-
+  readRDS(file = here::here("models/first_model.rds"))
 ```
 
 ```{r}
-#| include: false
+#| include: true
 #| echo: false
 #| eval: true
 #| label: tbl-modelresults
 #| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
 #| warning: false
 
-#modelsummary::modelsummary(
-#  list(
-#    "First model" = first_model
-#  ),
-#  statistic = "mad",
-#  fmt = 2
-#)
+modelsummary::modelsummary(
+  list(
+    "First model" = first_model
+  ),
+  statistic = "mad",
+  fmt = 2
+)
 ```
 
 
@@ -290,7 +300,7 @@ In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. 
 In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
 
 ```{r}
-#| include: false
+#| include: true
 #| eval: true
 #| echo: false
 #| message: false
@@ -300,15 +310,15 @@ In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. Th
 #| fig-cap: "Examining how the model fits, and is affected by, the data"
 #| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
 
-#pp_check(first_model) +
-#  theme_classic() +
-#  theme(legend.position = "bottom")
+pp_check(first_model) +
+  theme_classic() +
+  theme(legend.position = "bottom")
 
-#posterior_vs_prior(first_model) +
-#  theme_minimal() +
-#  scale_color_brewer(palette = "Set1") +
-#  theme(legend.position = "bottom") +
-#  coord_flip()
+posterior_vs_prior(first_model) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "bottom") +
+  coord_flip()
 ```
 
 ## Diagnostics
@@ -318,7 +328,7 @@ In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. Th
 @fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
 
 ```{r}
-#| include: false
+#| include: true
 #| echo: false
 #| eval: true
 #| message: false
@@ -328,9 +338,9 @@ In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. Th
 #| fig-subcap: ["Trace plot", "Rhat plot"]
 #| layout-ncol: 2
 
-#plot(first_model, "trace")
+plot(first_model, "trace")
 
-#plot(first_model, "rhat")
+plot(first_model, "rhat")
 ```
 
 
