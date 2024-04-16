@@ -10,7 +10,9 @@
 
 #### Workspace setup ####
 
-library(tidyverse)
+install.packages("lintr")
+
+lintr::lint("scripts/00-simulate_data.R")
 
 
 #### Build simulated data ####
