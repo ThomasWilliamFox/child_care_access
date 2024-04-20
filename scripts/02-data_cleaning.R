@@ -15,7 +15,7 @@ library(janitor)
 library(lintr)
 
 # Run lintr, all issues fixed (indents unchanged for clarity and line length
-# retained on line 124 for code functionality)
+# retained on lines 36-40 and 124 for code functionality)
 lintr::lint("scripts/02-data_cleaning.R")
 
 #### Clean data ####
@@ -33,15 +33,11 @@ cleaned_childcare_data <-
 
   # Cleans co-ordinates and separates x and y using
   # https://regex-generator.olafneumann.org/
-  mutate(geometry = str_remove(geometry, "\\{'type': 'MultiPoint', 
-                               'coordinates': ")) |>
+  mutate(geometry = str_remove(geometry, "\\{'type': 'MultiPoint', 'coordinates': ")) |>
   mutate(geometry = str_remove(geometry, "\\[\\[")) |>
   mutate(geometry = str_remove(geometry, "\\]\\]\\}")) |>
-  mutate(x = str_extract(geometry,
-                         "([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))
-                         (?:[Ee]([+-]?\\d+))?")) |>
-  mutate(y = str_remove(geometry, "([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))
-                        (?:[Ee]([+-]?\\d+))?")) |>
+  mutate(x = str_extract(geometry,"([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?")) |>
+  mutate(y = str_remove(geometry, "([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?")) |>
   mutate(y = str_remove(y, "\\, "))
 
 # Summarize child data by number of centres with subsidies, centres with
@@ -150,7 +146,9 @@ merged_census_childcare <- cbind(cleaned_census_data,
                                  ward_child_care_data["total_spots"])
 merged_census_childcare <-
   cbind(merged_census_childcare, total_under_15 =
-        rowSums(merged_census_childcare[2:4]))
+        rowSums(merged_census_childcare[2:4])) |>
+  mutate(prop = total_under_15 / total_spots)
+
 
 # Rearrange columns
 merged_census_childcare

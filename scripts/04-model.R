@@ -19,12 +19,11 @@ lintr::lint("scripts/04-model.R")
 
 #### Read data ####
 merged_data <- read_parquet("data/analysis_data/merged_ward_data.parquet")
-merged_data <-
-  merged_data |>
-  mutate(prop = total_under_15 / total_spots)
+merged_data <- merged_data |>
+  mutate(avg_hh_income = avg_hh_income/100000) 
 
-merged_data
 
+merged_data$englishprop
 ### Model data ####
 first_model <-
   stan_glm(
@@ -37,7 +36,7 @@ first_model <-
     seed = 853
   )
 
-
+?normal()
 #### Save model ####
 saveRDS(
   first_model,

@@ -68,8 +68,6 @@ merged_ward_childcare = read_parquet(
 
 merged_data <- read_parquet(here::here("data/analysis_data/merged_ward_data.parquet"))
 merged_data <-
-  merged_data |>
-  mutate(prop = total_under_15 / total_spots)
 
 merged_data
 
@@ -129,7 +127,7 @@ register_stadiamaps(key = "1662b375-446a-4847-acf3-831fb1381f2b", write = TRUE)
 
 # Builds map using box co-ordinates
 toronto_stamen_map <- get_stadiamap(bbox_toronto, zoom = 12, maptype = "stamen_toner_lite", crop = TRUE)
-
+child_care_data
 # Builds map with child care centres plotted
 ggmap(toronto_stamen_map, extent = "panel", maprange = FALSE) +
   geom_point(data = child_care_data,
@@ -143,7 +141,7 @@ ggmap(toronto_stamen_map, extent = "panel", maprange = FALSE) +
 
 ## Toronto Ward Profiles {#sec-warddata}
 
-The "Ward Profiles (25-Ward Model)" data set is provided to Open Data Toronto (@opendatatoronto) by Toronto City Planning [@wards]. The data sets of interest in this paper found through this resource are the "2023-WardProfiles-2011-2021-CensusData" data set which is used to determine demographic information related to each ward, and the "25-WardNames-Numbers" data set that is used to code names to ward numbers in this paper [@wards]. Variables isolated from the 2021 Canada Census include ward number, population, number of children under 15, average yearly household income, median yearly household income, number of households where English is spoken most often, population identifying as racialized. @tbl-warddata shows the first six entries in the cleaned data set.
+The "Ward Profiles (25-Ward Model)" data set is provided to Open Data Toronto (@opendatatoronto) by Toronto City Planning [@wards]. The data sets of interest in this paper found through this resource are the "2023-WardProfiles-2011-2021-CensusData" data set which is used to determine demographic information related to each ward, and the "25-WardNames-Numbers" data set that is used to code names to ward numbers in this paper [@wards]. Variables isolated from the 2021 Canada Census include ward number, population, number of children under 15, average yearly household income, number of households where English is spoken most often, population identifying as racialized. @tbl-warddata shows the first six entries in the cleaned data set.
 
 ```{r}
 #| label: tbl-warddata
@@ -153,11 +151,11 @@ The "Ward Profiles (25-Ward Model)" data set is provided to Open Data Toronto (@
 
 ward_data_table <- 
   merged_ward_childcare |>
-  select(ward, total, total_under_15, avg_hh_income, med_hh_income, english, visible_minority)
+  select(ward, total, total_under_15, avg_hh_income, english, visible_minority)
 
 head(ward_data_table, 6) |>
   kable(
-    col.names = c("Ward", "Total Population", "Children Under 15", "Average Household Income", "Median Household Income", "English Spoken Most Often in Household", "Population Identifying as Racialized"),
+    col.names = c("Ward", "Total Population", "Children Under 15", "Average Household Income", "English Spoken Most Often in Household", "Population Identifying as Racialized"),
     booktabs = TRUE
   )
 
