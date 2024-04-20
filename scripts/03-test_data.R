@@ -12,40 +12,44 @@
 library(tidyverse)
 library(dplyr)
 library(janitor)
+library(lintr)
+
+# Run lintr, all issues fixed
+lintr::lint("scripts/03-test_data.R")
 
 #### Load Cleaned Data Sets ####
 
 # read child care data
 
-child_care_test = read_parquet(
+child_care_test <- read_parquet(
   file = here("data/analysis_data/child_care_data.parquet"),
   show_col_types = FALSE
 )
 
-# read summarized child care data 
+# read summarized child care data
 
-summarized_child_care_test = read_parquet(
+summarized_child_care_test <- read_parquet(
   file = here("data/analysis_data/ward_child_care_data.parquet"),
   show_col_types = FALSE
 )
 
-# read census ward data 
+# read census ward data
 
-ward_data_test = read_parquet(
+ward_data_test <- read_parquet(
   file = here("data/analysis_data/census_data.parquet"),
   show_col_types = FALSE
 )
 
-# read merged data 
+# read merged data
 
-merged_ward_childcare_test = read_parquet(
+merged_ward_childcare_test <- read_parquet(
   file = here("data/analysis_data/merged_ward_data.parquet"),
   show_col_types = FALSE
 )
 
 # read names data
 
-ward_names_test = read_parquet(
+ward_names_test <- read_parquet(
   file = here("data/analysis_data/ward_names.parquet"),
   show_col_types = FALSE
 )
@@ -56,17 +60,17 @@ ward_names_test = read_parquet(
 child_care_test
 
 
-# Test summarized child care data 
+# Test summarized child care data
 
 summarized_child_care_test
 
 
-# Test ward data 
+# Test ward data
 
 ward_data_test
 
 
-# Test merged data 
+# Test merged data
 
 merged_ward_childcare_test
 

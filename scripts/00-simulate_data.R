@@ -13,7 +13,7 @@
 library(tidyverse)
 library(lintr)
 
-# Run lintr, all major issues fixed, remaining issues are unclear or not helpful
+# Run lintr, all issues fixed, (indents unchanged for clarity)
 lintr::lint("scripts/00-simulate_data.R")
 
 
@@ -29,27 +29,27 @@ simulated_ward_data <-
       x = c(1:25),
       size = 25,
       replace = FALSE),
-    
+
     sim_children = sample(
       x = c(10000:25000),
       size = 25,
       replace = TRUE),
-    
+
     sim_spaces = sample(
       x = c(3000:7000),
       size = 25,
       replace = TRUE),
-  
+
     sim_income = sample(
       x = c(70000:200000),
       size = 25,
       replace = TRUE),
-    
+
     sim_non_english = sample(
       x = c(20000:50000),
       size = 25,
       replace = TRUE),
-    
+
     sim_total_population = sample(
       x = c(90000:110000),
       size = 25,
@@ -79,11 +79,11 @@ simulated_ward_data |>
 
 # Proportion of non-English speakers by ward
 simulated_ward_data |>
-  ggplot(aes(x = factor(sim_ward), y = sim_non_english / sim_total_population * 
-               100)) + 
-  geom_bar(stat = "identity") + 
-  theme_minimal() + 
-  labs(x = "Ward", y = "Proportion of non-English speakers (%)") 
+  ggplot(aes(x = factor(sim_ward), y = sim_non_english / sim_total_population *
+               100)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(x = "Ward", y = "Proportion of non-English speakers (%)")
 
 # Average household income and children per child care space by ward
 simulated_ward_data |>
@@ -92,17 +92,17 @@ simulated_ward_data |>
   geom_smooth(method = lm, color = "black") +
   theme_minimal() +
   labs(x = "Average household income in ward ($)", y = "Children per child care 
-       space") 
+       space")
 
 # Non-English speaking population and children per child care space by ward
 simulated_ward_data |>
-  ggplot(aes(x = sim_non_english / sim_total_population * 100, y = sim_children 
+  ggplot(aes(x = sim_non_english / sim_total_population * 100, y = sim_children
              / sim_spaces)) +
   geom_point(fill = "black", size = 1, shape = 23) +
   geom_smooth(method = lm, color = "black") +
   theme_minimal() +
   labs(x = "Proportion of non-English speakers by ward  (%)", y = "Children per 
-       child care space") 
+       child care space")
 
 #### Test simulated data ####
 

@@ -12,9 +12,13 @@
 library(arrow)
 library(tidyverse)
 library(rstanarm)
+library(lintr)
+
+# Run lintr, all issues fixed
+lintr::lint("scripts/04-model.R")
 
 #### Read data ####
-merged_data <- read_parquet("data/analysis_data/merged_ward_data.parquet") 
+merged_data <- read_parquet("data/analysis_data/merged_ward_data.parquet")
 merged_data <-
   merged_data |>
   mutate(prop = total_under_15 / total_spots)
@@ -39,5 +43,3 @@ saveRDS(
   first_model,
   file = "models/first_model.rds"
 )
-
-
