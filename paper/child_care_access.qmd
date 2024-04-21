@@ -71,7 +71,7 @@ merged_data <- read_parquet(here::here("data/analysis_data/merged_ward_data.parq
 merged_data <- merged_data |>
   mutate(income = avg_hh_income / max(avg_hh_income)) |>
   mutate(language = english / total) |>
-  mutate(racialized = visible_minority / total)
+  mutate(nonracialized = (total - visible_minority) / total)
 
 # read names data
 
@@ -129,7 +129,7 @@ register_stadiamaps(key = "1662b375-446a-4847-acf3-831fb1381f2b", write = TRUE)
 
 # Builds map using box co-ordinates
 toronto_stamen_map <- get_stadiamap(bbox_toronto, zoom = 12, maptype = "stamen_toner_lite", crop = TRUE)
-child_care_data
+
 # Builds map with child care centres plotted
 ggmap(toronto_stamen_map, extent = "panel", maprange = FALSE) +
   geom_point(data = child_care_data,
@@ -141,13 +141,43 @@ ggmap(toronto_stamen_map, extent = "panel", maprange = FALSE) +
   
 ```
 
+@fig-totalspots displays the total individual child care spaces found in each of Toronto's 25 wards. The wards with the fewest number of licensed child care spaces are Scarborough-Rouge Park with 1935 spaces, Etobicoke-North with 2094, and Scarborough North with 2104. The wards with the greatest number of child care spaces are Parkdale-High Park with 4632, Etobicoke-Lakeshore with 4937, and Toronto-Danforth with 5054.
+
+```{r}
+#| label: fig-totalspots
+#| fig-cap: Total Number of Licensed Child-Care Spaces in Toronto by Ward
+#| echo: false
+#| warning: false
+
+# turn ward_names into list for graph substitution with ward numbers 
+ward_name_list <- as.list(ward_names$ward_name)
+
+# substitute ward numbers for names
+ward_childcare <-
+  merged_ward_childcare |>
+  mutate(ward = as.character(ward))
+
+for (x in 1:25) {
+  ward_childcare$ward[ward_childcare$ward == x] = ward_name_list[[x]]
+} 
+
+# construct graph 
+ward_childcare |>
+  ggplot(aes(x = reorder(ward, 1:25), y = total_spots)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 7, angle = 45, vjust = 1, hjust=1))+
+  labs(x = "Ward", y = "Total child care spaces")
+
+```
+
 ## Toronto Ward Profiles {#sec-warddata}
 
 The "Ward Profiles (25-Ward Model)" data set is provided to Open Data Toronto (@opendatatoronto) by Toronto City Planning [@wards]. The data sets of interest in this paper found through this resource are the "2023-WardProfiles-2011-2021-CensusData" data set which is used to determine demographic information related to each ward, and the "25-WardNames-Numbers" data set that is used to code names to ward numbers in this paper [@wards]. Variables isolated from the 2021 Canada Census include ward number, population, number of children under 15, average yearly household income, number of households where English is spoken most often, population identifying as racialized. @tbl-warddata shows the first six entries in the cleaned data set.
 
 ```{r}
 #| label: tbl-warddata
-#| tbl-cap: Sample of Cleaned Toronto Ward Data
+#| tbl-cap: Sample of the First Six Entries in the Cleaned Toronto Ward Data
 #| echo: false
 #| warning: false
 
@@ -163,22 +193,95 @@ head(ward_data_table, 6) |>
 
 ```
 
+@fig-totalchildren displays the total number of children under the age of 15 in each ward. Age range was selected to represent the child care age ranges found on the Government of Ontario's child care rules website [@ontario]. The wards with the fewest number of children are University-Rosedale with 8980, Spadina-Fort York with 9270, and Toronto Centre with 9310. The wards with the greatest number of children are Beaches-East York with 18685, Humber River-Black Creek with 18770, and Eglinton-Lawrence with 19115.
+
+```{r}
+#| label: fig-totalchildren
+#| fig-cap: Population Under 15 Years of Age in Each of Toronto's 25 Wards
+#| echo: false
+#| warning: false
+
+# substitute ward numbers for names
+for (x in 1:25) {
+  merged_ward_childcare$ward[merged_ward_childcare$ward == x] = ward_name_list[[x]]
+} 
+
+# construct graph 
+merged_ward_childcare|>
+  ggplot(aes(x = reorder(ward, 1:25), y = total_under_15)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 7, angle = 45, vjust = 1, hjust=1))+
+  labs(x = "Ward", y = "Population under 15 years of age") 
+```
+
+@fig-avgincome shows the average yearly household income in each of Toronto's 25 wards. The wards with the lowest average income in Toronto are Humber River-Black Creek with \$85700, York South-Weston with \$88700, and Toronto Centre with \$89400. Toronto's wards with the highest average income are University-Rosedale with \$174800, Eglinton-Lawrence with \$176400, and Don Valley West with \$224800.
+
+```{r}
+#| label: fig-avgincome
+#| fig-cap: Average Household Income in Each of Toronto's 25 Wards
+#| echo: false
+#| warning: false
+
+# Construct graph 
+merged_ward_childcare |>
+  ggplot(aes(x = reorder(ward, 1:25), y = avg_hh_income)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 7, angle = 45, vjust = 1, hjust=1)) +
+  labs(x = "Ward", y = "Average household income")
+```
+```{r}
+#| label: fig-language
+#| fig-cap: Proportion of the Population in Each of Toronto's 25 Wards That Speak English Most Often at Home
+#| echo: false
+#| warning: false
+
+# Construct graph 
+merged_ward_childcare |>
+  ggplot(aes(x = reorder(ward, 1:25), y = english/total*100)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 7, angle = 45, vjust = 1, hjust=1)) +
+  labs(x = "Ward", y = "English speaking households (%)")
+```
+
+@fig-language shows the proportion of the population in each of Toronto's 25 wards that speaks English most often in their households. The wards with the lowest proportion of English speaking households in Toronto are Humber River-Black Creek with 41%, York South-Weston with 43%, and Toronto Centre with 48%. Toronto's wards with the highest proportion of English speaking households are Toronto-Danforth with 81%, Beaches-East York with 81%, and Park Dale-High Park with 82%.
+
+```{r}
+#| label: fig-racialized
+#| fig-cap: Proportion of the Population in Each of Toronto's 25 Wards Identify as Racialized
+#| echo: false
+#| warning: false
+
+# Construct graph 
+merged_ward_childcare |>
+  ggplot(aes(x = reorder(ward, 1:25), y = visible_minority/total*100)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 7, angle = 45, vjust = 1, hjust=1)) +
+  labs(x = "Ward", y = "Racialized population (%)")
+```
+
+@fig-racialized shows the proportion of the population in each of Toronto's 25 wards that identifies as racialized. The wards with the lowest proportion of racialized population in Toronto are Parkdale-High Park with 29%, Etobicoke Centre with 32%, and Davenport with 34%. Toronto's wards with the highest proportion of racialized population are Etobicoke-North 78%, Scarborough-Agincourt with 82%, and Scarborough-North with 92%.
+
 # Model {#sec-model}
 
-The goal of our modelling strategy is twofold. Firstly,...
+The goal of this paper's modelling strategy is to investigate the effects that average household income, proportion of racialized population, and proportion of English-speaking households have on the number of children per existing child care space in each of Toronto's 25 wards.
 
 Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
 
 ## Model set-up
 
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
+Define $y_i$ as the number of children per child care space in a ward. Then $\beta_i$ is the average household income in the ward, $\gamma_i$ is the proportion of English speaking households in the ward, and $\theta_i$ is the proportion of the ward's population identifying as racialized.  
 
 \begin{align} 
 y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
+\mu_i &= \beta_i + \gamma_i + \theta_i \\
 \alpha &\sim \mbox{Normal}(0, 2.5) \\
 \beta &\sim \mbox{Normal}(0, 2.5) \\
 \gamma &\sim \mbox{Normal}(0, 2.5) \\
+\theta &\sim \mbox{Normal}(0, 2.5) \\
 \sigma &\sim \mbox{Exponential}(1)
 \end{align}
 
@@ -191,6 +294,21 @@ We expect a negative relationship between average household income and the numbe
 We can use maths by including latex between dollar signs, for instance $\theta$.
 
 # Results {#sec-results}
+
+```{r}
+#| label: fig-childrenspaces
+#| fig-cap: Number of Children for Every Existing Licensed Child Care Space in Each of Toronto's 25 Wards
+#| echo: false
+#| warning: false
+
+# Construct graph 
+merged_ward_childcare |>
+  ggplot(aes(x = reorder(ward, 1:25), y = prop)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 7, angle = 45, vjust = 1, hjust=1)) +
+  labs(x = "Ward", y = "Children per child care space")
+```
 
 ```{r}
 #| label: fig-incomespaces
@@ -219,7 +337,7 @@ merged_ward_childcare |>
   geom_point(fill = "black", size = 1, shape = 23) +
   geom_smooth(method = lm, color = "black") +
   theme_minimal() +
-  labs(x = "Proportion of English speaking households by ward (%)", y = "Children per child care space") 
+  labs(x = "Proportion of ward population that speak English at home (%)", y = "Children per child care space") 
 ```
 
 ```{r}
@@ -326,6 +444,25 @@ posterior_vs_prior(first_model) +
 @fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
 
 @fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
+
+@fig-plot is a credibility interval plot
+
+```{r}
+#| include: true
+#| echo: false
+#| eval: true
+#| message: false
+#| warning: false
+#| label: fig-plot
+#| fig-cap: "Checking the credibility of the model"
+
+plot(
+  first_model,
+  "areas"
+)
+
+```
+
 
 ```{r}
 #| include: true

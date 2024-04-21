@@ -22,14 +22,12 @@ merged_data <- read_parquet("data/analysis_data/merged_ward_data.parquet")
 merged_data <- merged_data |>
   mutate(income = avg_hh_income / max(avg_hh_income)) |>
   mutate(language = english / total) |>
-  mutate(racialized = visible_minority / total)
-
-merged_data$income
+  mutate(nonracialized = (total - visible_minority) / total)
 
 ### Model data ####
 first_model <-
   stan_glm(
-    formula = prop ~ income + language + racialized,
+    formula = prop ~ income + language + nonracialized,
     data = merged_data,
     family = gaussian(),
     prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
