@@ -66,10 +66,12 @@ merged_ward_childcare = read_parquet(
   show_col_types = FALSE
 )
 
-merged_data <- read_parquet(here::here("data/analysis_data/merged_ward_data.parquet"))
-merged_data <-
 
-merged_data
+merged_data <- read_parquet(here::here("data/analysis_data/merged_ward_data.parquet"))
+merged_data <- merged_data |>
+  mutate(income = avg_hh_income / max(avg_hh_income)) |>
+  mutate(language = english / total) |>
+  mutate(racialized = visible_minority / total)
 
 # read names data
 

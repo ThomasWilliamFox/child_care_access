@@ -20,14 +20,16 @@ lintr::lint("scripts/04-model.R")
 #### Read data ####
 merged_data <- read_parquet("data/analysis_data/merged_ward_data.parquet")
 merged_data <- merged_data |>
-  mutate(avg_hh_income = avg_hh_income/100000) 
+  mutate(income = avg_hh_income / max(avg_hh_income)) |>
+  mutate(language = english / total) |>
+  mutate(racialized = visible_minority / total)
 
+merged_data$income
 
-merged_data$englishprop
 ### Model data ####
 first_model <-
   stan_glm(
-    formula = prop ~ avg_hh_income,
+    formula = prop ~ income + language + racialized,
     data = merged_data,
     family = gaussian(),
     prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
@@ -36,7 +38,6 @@ first_model <-
     seed = 853
   )
 
-?normal()
 #### Save model ####
 saveRDS(
   first_model,
