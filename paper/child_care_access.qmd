@@ -334,7 +334,7 @@ modelsummary::modelsummary(
 
 # Results {#sec-results}
 
-To explore the effect that average household income, language, and racialized population have on the total number of child care spaces by ward, a merged and summarized data set was created with variables for ward name, average yearly household income, total childcare spaces, and total population aged 0 to 14, total population, population identifying as racialized, English speaking population, and children per child care space (see Appendix -@sec-model-details). @fig-childrenspaces displays the number of children per existing child care space by ward. These values help infer the accessibility and demand for child care spaces in each ward. The wards with the greatest number of children per existing child care space are Etobicoke North with 8.8, Scarborough-Rouge Park with 7.8, and York South-Weston with 7.7. The wards with the fewest number of children per child care space are Toronto-Danforth with 3.2, Spadina-Fort York with 2.9, and University-Rosedale with 2.7.
+To explore the effect that average household income, language, and racialized population have on the total number of child care spaces by ward, a merged and summarized data set was created with variables for ward name, average yearly household income, total childcare spaces, and total population aged 0 to 14, total population, population identifying as racialized, English speaking population, and children per child care space (see @sec-data-details). @fig-childrenspaces displays the number of children per existing child care space by ward. These values help infer the accessibility and demand for child care spaces in each ward. The wards with the greatest number of children per existing child care space are Etobicoke North with 8.8, Scarborough-Rouge Park with 7.8, and York South-Weston with 7.7. The wards with the fewest number of children per child care space are Toronto-Danforth with 3.2, Spadina-Fort York with 2.9, and University-Rosedale with 2.7.
 
 ```{r}
 #| label: fig-childrenspaces
@@ -437,20 +437,19 @@ Exploring the average cost of child care at each facility could help to provide 
 
 # Appendix {-}
 
-# Additional data details {#data-details}
+# Additional Data Details {#data-details}
 
-## Merged Data Set
+In @tbl-mergeddata a sample of the merged data set used for the results section of this paper can be seen. 
+
 
 ```{r}
 #| include: true
-#| eval: true
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-mergeddata
-#| tbl-cap: Sample of Merged Licensed Child Care Centres in Toronto and Ward Profiles (2021 Census Data)
+#| tbl-cap: Sample of Merged Licensed Child Care Centres in Toronto and Ward Profiles
 #| layout-nrow: 2
-#| fig.pos: "H"
 
 merged <-
   merged_ward_childcare |>
@@ -489,7 +488,6 @@ In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. Th
 #| layout-ncol: 2
 #| fig-cap: "Examining how the model fits, and is affected by, the data"
 #| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
-#| fig.pos: "H"
 
 pp_check(first_model) +
   theme_classic() +
@@ -518,7 +516,6 @@ posterior_vs_prior(first_model) +
 #| warning: false
 #| label: fig-plot
 #| fig-cap: "Checking the credibility of the model"
-#| fig.pos: "H"
 
 plot(
   first_model,
@@ -538,7 +535,6 @@ plot(
 #| fig-cap: "Checking the convergence of the MCMC algorithm"
 #| fig-subcap: ["Trace plot", "Rhat plot"]
 #| layout-ncol: 2
-#| fig.pos: "H"
 
 plot(first_model, "trace")
 
@@ -547,7 +543,7 @@ plot(first_model, "rhat")
 
 
 
-\newpage
+\clearpage
 
 
 # References
