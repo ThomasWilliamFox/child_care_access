@@ -1,6 +1,6 @@
 ---
 title: "Inequitable Access"
-subtitle: "An Analysis of Licensed Child Care in Toronto's 25 Wards"
+subtitle: "An Analysis of Licensed Child Care in Toronto's 25 Wards in 2024"
 author: 
   - Thomas Fox
 thanks: "Code and data are available at: https://github.com/ThomasWilliamFox/child_care_access.git."
@@ -116,7 +116,7 @@ head(child_care_table, 6) |>
 
 ```{r out.width = '100%'}
 #| label: fig-map
-#| fig-cap: Map showing the loction of all licensed child care centres in Toronto
+#| fig-cap: Map Showing the Loction of Each Licensed Child Care Centre in Toronto
 #| warning: false
 #| message: false
 #| echo: false
@@ -334,7 +334,7 @@ modelsummary::modelsummary(
 
 # Results {#sec-results}
 
-To explore the effect that average household income, language, and racialized population have on the total number of child care spaces by ward, a merged and summarized data set was created with variables for ward name, average yearly household income, total childcare spaces, and total population aged 0 to 14, total population, population identifying as racialized, English speaking population, and children per child care space (see @tbl-mergeddata). @fig-childrenspaces displays the number of children per existing child care space by ward. These values help infer the accessibility and demand for child care spaces in each ward. The wards with the greatest number of children per existing child care space are Etobicoke North with 8.8, Scarborough-Rouge Park with 7.8, and York South-Weston with 7.7. The wards with the fewest number of children per child care space are Toronto-Danforth with 3.2, Spadina-Fort York with 2.9, and University-Rosedale with 2.7.
+To explore the effect that average household income, language, and racialized population have on the total number of child care spaces by ward, a merged and summarized data set was created with variables for ward name, average yearly household income, total childcare spaces, and total population aged 0 to 14, total population, population identifying as racialized, English speaking population, and children per child care space (see Appendix -@sec-model-details). @fig-childrenspaces displays the number of children per existing child care space by ward. These values help infer the accessibility and demand for child care spaces in each ward. The wards with the greatest number of children per existing child care space are Etobicoke North with 8.8, Scarborough-Rouge Park with 7.8, and York South-Weston with 7.7. The wards with the fewest number of children per child care space are Toronto-Danforth with 3.2, Spadina-Fort York with 2.9, and University-Rosedale with 2.7.
 
 ```{r}
 #| label: fig-childrenspaces
@@ -416,8 +416,9 @@ This paper investigates issues of access and demand for licensed child care spac
 
 ## Income, Language, and Racialized Population
 
+As outlined in @fig-incomespaces, a negative correlation exists between average household income and children pre child care space across Toronto. In @fig-languagespaces a similar trend is displayed with less children per existing child care space in wards with higher proportions of English speaking households. @fig-nonracializedspaces shows a negative relationship between the proportion of residents identifying as non-racialized and the number of children per space. These findings infer that wards with higher incomes, higher proportions of English speaking households, and lower proportions of racialized residents less children per existing child care space, and therefore, more accessibility to licensed child care. 
 
-
+These findings are troubling for a variety of reasons. Children with at least one parent who speaks a language other than English in the home benefit disproportionately from child care access when compared to children from English speaking households [@overlooked]. Income disparity related to child care access is especially concerning as both dual language and racialized children are more likely to experience poverty [@overlooked : @racializedpoverty]. With Toronto having the highest rate of income inequality between racialized and non-racialized individuals in Canada, further research regarding the relationship between the variables examined in this paper would be beneficial [@racializedpoverty]. As quality child care is an instrumental facet of community, family, and individual health, these findings support any steps taken to ensure equitable access to quality child care across the city of Toronto. 
 
 ## General Access
 
@@ -428,22 +429,28 @@ An alarming finding in this paper is that on average, there are 5.1 children in 
 
 The child care data provided by the Child Service's division only contains information about licensed child care centres [@caredata]. The Government of Ontario specifies that unlicensed child care providers can operate with five or fewer children out of their homes [@ontario]. This may account for many of the children who are unable to obtain a space in a licensed child care facility as may family members and private sitters. The Ward data used in the paper is from the 2021 Canada Census and more current demographic information would contribute to a more precise analysis. The Census data is also generated from a 25% sample size which may lead to errors or misrepresentations in the data. 
 
-Exploring the average cost of child care at each facility could help to provide more insight into equitable access but this information is unavailable. A variable which may skew the data or produce outliers is the multitude of individual neighborhoods with each ward with their own social and economic considerations [@wards]. Outliers such as Toronto Centre and Scarborough Rouge-Park for instance may be influenced by variation in income by neighborhood or higher child care supply based on commuting population and business density. A more robust multiple regression model would be a generative future project for inference investigation and exploration of other variables. 
+Exploring the average cost of child care at each facility could help to provide more insight into equitable access but this information is unavailable. A variable which may skew the data or produce outliers is the multitude of individual neighborhoods with each ward with their own social and economic considerations [@wards]. Outliers like Toronto Centre and Scarborough Rouge-Park for example could be influenced by variation in income by neighborhood or higher child care supply based on commuting population and business density. A more robust multiple regression model would be a generative future project for inference investigation and exploration of other variables. 
 
 \newpage
-
 \appendix
+
 
 # Appendix {-}
 
-# Additional data details
+# Additional data details {#data-details}
+
+## Merged Data Set
 
 ```{r}
-#| label: tbl-mergeddata
-#| tbl-cap: Sample of Merged Licensed Child Care Centres in Toronto and Ward Profiles (2021 Census Data) used to build graphs
+#| include: true
+#| eval: true
 #| echo: false
+#| message: false
 #| warning: false
+#| label: tbl-mergeddata
+#| tbl-cap: Sample of Merged Licensed Child Care Centres in Toronto and Ward Profiles (2021 Census Data)
 #| layout-nrow: 2
+#| fig.pos: "H"
 
 merged <-
   merged_ward_childcare |>
@@ -453,16 +460,15 @@ head(merged[c(1:4)], 3) |>
   kable(
     col.names = c("Ward Name", "Average Household Income", "Child Care Spaces", "Population Aged 0 - 14"),
     booktabs = TRUE,
-    align = "l"
-  )
+    align = "l",
+  ) 
 
 head(merged[c(5:8)], 3) |>
   kable(
     col.names = c("Total Population", "Racialized Population", "English Speakng Population", "Children Per Space"),
     booktabs = TRUE,
     align = "l"
-  )
-
+  ) 
 ```
 
 # Model details {#sec-model-details}
@@ -483,6 +489,7 @@ In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. Th
 #| layout-ncol: 2
 #| fig-cap: "Examining how the model fits, and is affected by, the data"
 #| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
+#| fig.pos: "H"
 
 pp_check(first_model) +
   theme_classic() +
@@ -511,6 +518,7 @@ posterior_vs_prior(first_model) +
 #| warning: false
 #| label: fig-plot
 #| fig-cap: "Checking the credibility of the model"
+#| fig.pos: "H"
 
 plot(
   first_model,
@@ -530,6 +538,7 @@ plot(
 #| fig-cap: "Checking the convergence of the MCMC algorithm"
 #| fig-subcap: ["Trace plot", "Rhat plot"]
 #| layout-ncol: 2
+#| fig.pos: "H"
 
 plot(first_model, "trace")
 
