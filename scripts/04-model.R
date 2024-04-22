@@ -21,19 +21,19 @@ lintr::lint("scripts/04-model.R")
 merged_data <- read_parquet("data/analysis_data/merged_ward_data.parquet")
 merged_data <- merged_data |>
   mutate(income = avg_hh_income / max(avg_hh_income)) |>
-  mutate(language = english / total) |>
-  mutate(nonracialized = (total - visible_minority) / total)
+  mutate(nonracialized = (total - visible_minority) / total) |>
+  mutate(language = english / total)
 
 ### Model data ####
 first_model <-
   stan_glm(
-    formula = prop ~ income + language + nonracialized,
+    formula = prop ~ income,
     data = merged_data,
     family = gaussian(),
     prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
     prior_intercept = normal(location = 0, scale = 2.5, autoscale = TRUE),
     prior_aux = exponential(rate = 1, autoscale = TRUE),
-    seed = 853
+    seed = 227
   )
 
 #### Save model ####

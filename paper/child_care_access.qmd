@@ -69,9 +69,7 @@ merged_ward_childcare = read_parquet(
 
 merged_data <- read_parquet(here::here("data/analysis_data/merged_ward_data.parquet"))
 merged_data <- merged_data |>
-  mutate(income = avg_hh_income / max(avg_hh_income)) |>
-  mutate(language = english / total) |>
-  mutate(nonracialized = (total - visible_minority) / total)
+  mutate(income = avg_hh_income / max(avg_hh_income))
 
 # read names data
 
@@ -89,18 +87,19 @@ This paper explores child care data from @caredata and ward data from @wards to 
 
 This analysis explores relationships between child care demand and various demographic metrics across Toronto's 25 wards (see [@sec-results]). The paper's estimand is that average household income is negatively correlated with the number of children per child care space by ward. The paper also explores the relationships between existing child care spaces and the proportion of racialized and non-native-English speaking populations by ward. These findings demonstrate inequitable access to child care across the city of Toronto. As child care plays a central role in the social and economic well-being of communities, and has an especially positive impact on vulnerable children and low-income families, these findings support measures and initiatives aimed at ensuring more equitable access to child care in the city of Toronto [see @strategy].
 
-The remainder of this paper is structured as follows. @sec-data outlines the data sets used throughout this paper made available by Open Data Toronto [@opendatatoronto]. @sec-childcare explores the "Licensed Child Care Centres" data set provided by @caredata, while @sec-warddata explores the "Ward Profiles (25-Ward Model)" data set provided by @wards. A model built to explore the impact of income on child care spaces in Toronto is outlined in @sec-model. Results of modeling and data analysis are found in @sec-results. This is followed by a discussion surrounding these findings and their implications in @sec-discussion. This section also includes discussions around potential weaknesses and next steps regarding this research.  
+The remainder of this paper is structured as follows. @sec-data outlines the data sets used throughout this paper made available by Open Data Toronto [@opendatatoronto]. @sec-childcare explores the "Licensed Child Care Centres" data set provided by @caredata, while @sec-warddata explores the "Ward Profiles (25-Ward Model)" data set provided by @wards. A model built to explore the impact of average household income on child care spaces in Toronto is outlined in @sec-model. Results of data analysis are found in @sec-results. This is followed by a discussion surrounding these findings and their implications in @sec-discussion. This section also includes discussions around potential weaknesses and next steps regarding this research.  
 
 # Data {#sec-data}
 ## Licensed Child Care Centres {#sec-childcare}
 
-The "Licensed Child Care Centres" data set is provided to Open Data Toronto [@opendatatoronto] by the City of Toronto's Children's Services division [@caredata]. The data set contains 1,066 entries, each corresponding to a licensed child care facility in Toronto. Variables chosen to isolate after cleaning include the facility ID number, the ward number where the facility is located, and the total number of individual child care spaces at the facility. Each facility's operation type is also isolated, with the data showing that there are 703 non profit, 324 commercial, and 39 public (City operated) facilities in Toronto. Information about whether the each facility has a fee subsidy contract or participates in the Canada-Wide Early Learning & Child Care (CWELCC) system is also included, with 68% of facilities having subsidy contracts and 87% of facilities participating in CWELCC. @tbl-childcaredata shows the first six entries in this data set and @fig-map shows the location of each facility across Toronto. 
+The "Licensed Child Care Centres" data set is provided to Open Data Toronto [@opendatatoronto] by the City of Toronto's Children's Services division [@caredata]. The data is updated on an ongoing basis and the data used in this paper was updated on April 19, 2024. The data set contains 1,066 entries, each corresponding to a licensed child care facility in Toronto. Variables chosen to isolate after cleaning include the facility ID number, the ward number where the facility is located, and the total number of individual child care spaces at the facility. Each facility's operation type is also isolated, with the data showing that there are 703 non profit, 324 commercial, and 39 public (City operated) facilities in Toronto. Information about whether the each facility has a fee subsidy contract or participates in the Canada-Wide Early Learning & Child Care (CWELCC) system is also included, with 68% of facilities having subsidy contracts and 87% of facilities participating in CWELCC. @tbl-childcaredata shows the first six entries in this data set and @fig-map shows the location of each facility across Toronto. 
 
 ```{r}
 #| label: tbl-childcaredata
 #| tbl-cap: Sample of Cleaned Toronto Licensed Child Care Centre Data
 #| echo: false
 #| warning: false
+#| fig.pos: "H"
 
 child_care_table <- 
   child_care_data |>
@@ -109,7 +108,8 @@ child_care_table <-
 head(child_care_table, 6) |>
   kable(
     col.names = c("Facility ID", " Ward Number", "Total Spaces", "Type", "Subsidy", "CWELCC"),
-    booktabs = TRUE
+    booktabs = TRUE,
+    align = "l"
   )
 
 ```
@@ -120,6 +120,7 @@ head(child_care_table, 6) |>
 #| warning: false
 #| message: false
 #| echo: false
+#| fig.pos: "H"
 
 # Use google maps for box co-ordinates
 bbox_toronto <- c(left =-79.669692514001, bottom = 43.57044, right = -79.096000099990, top = 43.85090373064596)
@@ -148,6 +149,7 @@ ggmap(toronto_stamen_map, extent = "panel", maprange = FALSE) +
 #| fig-cap: Total Number of Licensed Child-Care Spaces in Toronto by Ward
 #| echo: false
 #| warning: false
+#| fig.pos: "H"
 
 # turn ward_names into list for graph substitution with ward numbers 
 ward_name_list <- as.list(ward_names$ward_name)
@@ -180,6 +182,7 @@ The "Ward Profiles (25-Ward Model)" data set is provided to Open Data Toronto (@
 #| tbl-cap: Sample of the First Six Entries in the Cleaned Toronto Ward Data
 #| echo: false
 #| warning: false
+#| fig.pos: "H"
 
 ward_data_table <- 
   merged_ward_childcare |>
@@ -188,7 +191,8 @@ ward_data_table <-
 head(ward_data_table, 6) |>
   kable(
     col.names = c("Ward", "Total Population", "Children Under 15", "Average Household Income", "English Spoken Most Often in Household", "Population Identifying as Racialized"),
-    booktabs = TRUE
+    booktabs = TRUE,
+    align = "l"
   )
 
 ```
@@ -200,6 +204,7 @@ head(ward_data_table, 6) |>
 #| fig-cap: Population Under 15 Years of Age in Each of Toronto's 25 Wards
 #| echo: false
 #| warning: false
+#| fig.pos: "H"
 
 # substitute ward numbers for names
 for (x in 1:25) {
@@ -222,6 +227,7 @@ merged_ward_childcare|>
 #| fig-cap: Average Household Income in Each of Toronto's 25 Wards
 #| echo: false
 #| warning: false
+#| fig.pos: "H"
 
 # Construct graph 
 merged_ward_childcare |>
@@ -236,6 +242,7 @@ merged_ward_childcare |>
 #| fig-cap: Proportion of the Population in Each of Toronto's 25 Wards That Speak English Most Often at Home
 #| echo: false
 #| warning: false
+#| fig.pos: "H"
 
 # Construct graph 
 merged_ward_childcare |>
@@ -253,6 +260,7 @@ merged_ward_childcare |>
 #| fig-cap: Proportion of the Population in Each of Toronto's 25 Wards Identify as Racialized
 #| echo: false
 #| warning: false
+#| fig.pos: "H"
 
 # Construct graph 
 merged_ward_childcare |>
@@ -266,96 +274,6 @@ merged_ward_childcare |>
 @fig-racialized shows the proportion of the population in each of Toronto's 25 wards that identifies as racialized. The wards with the lowest proportion of racialized population in Toronto are Parkdale-High Park with 29%, Etobicoke Centre with 32%, and Davenport with 34%. Toronto's wards with the highest proportion of racialized population are Etobicoke-North 78%, Scarborough-Agincourt with 82%, and Scarborough-North with 92%.
 
 # Model {#sec-model}
-
-The goal of this paper's modelling strategy is to investigate the effects that average household income, proportion of racialized population, and proportion of English-speaking households have on the number of children per existing child care space in each of Toronto's 25 wards.
-
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
-
-## Model set-up
-
-Define $y_i$ as the number of children per child care space in a ward. Then $\beta_i$ is the average household income in the ward, $\gamma_i$ is the proportion of English speaking households in the ward, and $\theta_i$ is the proportion of the ward's population identifying as racialized.  
-
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \beta_i + \gamma_i + \theta_i \\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\theta &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
-
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
-
-### Model justification
-
-We expect a negative relationship between average household income and the number of children per child care space by ward. In particular...
-
-We can use maths by including latex between dollar signs, for instance $\theta$.
-
-# Results {#sec-results}
-
-```{r}
-#| label: fig-childrenspaces
-#| fig-cap: Number of Children for Every Existing Licensed Child Care Space in Each of Toronto's 25 Wards
-#| echo: false
-#| warning: false
-
-# Construct graph 
-merged_ward_childcare |>
-  ggplot(aes(x = reorder(ward, 1:25), y = prop)) +
-  geom_bar(stat = "identity") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(size = 7, angle = 45, vjust = 1, hjust=1)) +
-  labs(x = "Ward", y = "Children per child care space")
-```
-
-```{r}
-#| label: fig-incomespaces
-#| fig-cap: Relationship between income and child care spaces
-#| warning: false
-#| message: false
-#| echo: false
-
-merged_ward_childcare |>
-  ggplot(aes(x = avg_hh_income, y = total_under_15/total_spots)) +
-  geom_point(fill = "black", size = 1, shape = 23) +
-  geom_smooth(method = lm, color = "black") +
-  theme_minimal() +
-  labs(x = "Average household income by ward", y = "Children per child care space") 
-```
-
-```{r}
-#| label: fig-languagespaces
-#| fig-cap: Relationship between language and child care spaces
-#| warning: false
-#| message: false
-#| echo: false
-
-merged_ward_childcare |>
-  ggplot(aes(x = english/total*100, y = total_under_15/total_spots)) +
-  geom_point(fill = "black", size = 1, shape = 23) +
-  geom_smooth(method = lm, color = "black") +
-  theme_minimal() +
-  labs(x = "Proportion of ward population that speak English at home (%)", y = "Children per child care space") 
-```
-
-```{r}
-#| label: fig-nonminorityspaces
-#| fig-cap: Relationship between non-racialized population by ward and child care spaces
-#| warning: false
-#| message: false
-#| echo: false
-merged_ward_childcare |>
-  ggplot(aes(x = ((total-visible_minority)/total)*100, y = total_under_15/total_spots)) +
-  geom_point(fill = "black", size = 1, shape = 23) +
-  geom_smooth(method = lm, color = "black") +
-  theme_minimal() +
-  labs(x = "Porportion of ward population identified as non-racialized (%)", y = "Children per child care space") 
-```  
-
-Our results are summarized in @tbl-modelresults.
-
 ```{r}
 #| include: false
 #| echo: false
@@ -369,6 +287,32 @@ first_model <-
   readRDS(file = here::here("models/first_model.rds"))
 ```
 
+The goal of this paper's modelling strategy is to investigate the effects that average household income has on the number of children per existing child care space in each of Toronto's 25 wards.
+
+Further model details and diagnostics are included in [Appendix -@sec-model-details].
+
+## Model set-up
+
+Define $y_i$ as the number of children per child care space in a ward. Then $\beta_i$ is the average household income in the ward.
+
+\begin{align} 
+y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
+\mu_i &= \beta_i \\
+\alpha &\sim \mbox{Normal}(0, 2.5) \\
+\beta &\sim \mbox{Normal}(0, 2.5) \\
+\sigma &\sim \mbox{Exponential}(1)
+\end{align}
+
+The model is ran in R [@citeR] using the `rstanarm` package of @rstanarm with the package's default prior settings.
+
+### Model justification
+
+A negative relationship is expected between average household income and the number of children per child care space by ward. 
+
+### Model Results 
+
+The model results are summarized in @tbl-modelresults. The model shows that the intercept, or children per child care space if $\beta_i$ were 0, would be 8.12. The model also shows that the impact of average household income being 1.0, or the maximum average income in Toronto's 25 wards is -5.64 children per child care space. This infers that average income has a negative relationship with the number of children per existing child care space in the city of Toronto. 
+
 ```{r}
 #| include: true
 #| echo: false
@@ -376,6 +320,7 @@ first_model <-
 #| label: tbl-modelresults
 #| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
 #| warning: false
+#| fig.pos: "H"
 
 modelsummary::modelsummary(
   list(
@@ -387,17 +332,93 @@ modelsummary::modelsummary(
 ```
 
 
+# Results {#sec-results}
+
+To explore the effect that average household income, language, and racialized population have on the total number of child care spaces by ward, a merged and summarized data set was created with variables for ward name, average yearly household income, total childcare spaces, and total population aged 0 to 14, total population, population identifying as racialized, English speaking population, and children per child care space (see @tbl-mergeddata). @fig-childrenspaces displays the number of children per existing child care space by ward. These values help infer the accessibility and demand for child care spaces in each ward. The wards with the greatest number of children per existing child care space are Etobicoke North with 8.8, Scarborough-Rouge Park with 7.8, and York South-Weston with 7.7. The wards with the fewest number of children per child care space are Toronto-Danforth with 3.2, Spadina-Fort York with 2.9, and University-Rosedale with 2.7.
+
+```{r}
+#| label: fig-childrenspaces
+#| fig-cap: Number of Children for Every Existing Licensed Child Care Space in Each of Toronto's 25 Wards
+#| echo: false
+#| warning: false
+#| fig.pos: "H"
+
+# Construct graph 
+merged_ward_childcare |>
+  ggplot(aes(x = reorder(ward, 1:25), y = prop)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 7, angle = 45, vjust = 1, hjust=1)) +
+  labs(x = "Ward", y = "Children per child care space")
+```
+
+@fig-incomespaces aims to assess the relationship between average household income and children per child care space in Toronto's 25 wards. The plot displays a negative correlation between average household income and children per child care space. 
+
+```{r}
+#| label: fig-incomespaces
+#| fig-cap: Relationship between income and child care spaces
+#| warning: false
+#| message: false
+#| echo: false
+#| fig.pos: "H"
+
+merged_ward_childcare |>
+  ggplot(aes(x = avg_hh_income, y = total_under_15/total_spots)) +
+  geom_point(fill = "black", size = 1, shape = 23) +
+  geom_smooth(method = lm, color = "black") +
+  theme_minimal() +
+  labs(x = "Average household income by ward", y = "Children per child care space") 
+```
+
+@fig-languagespaces explores the relationship between English speaking household populations and children per child care space in Toronto's 25 wards. The plot displays a negative correlation between the proportion of English speaking populations and children per child care space. 
+
+```{r}
+#| label: fig-languagespaces
+#| fig-cap: Relationship between language and child care spaces
+#| warning: false
+#| message: false
+#| echo: false
+#| fig.pos: "H"
+
+merged_ward_childcare |>
+  ggplot(aes(x = english/total*100, y = total_under_15/total_spots)) +
+  geom_point(fill = "black", size = 1, shape = 23) +
+  geom_smooth(method = lm, color = "black") +
+  theme_minimal() +
+  labs(x = "Proportion of ward population that speak English at home (%)", y = "Children per child care space") 
+```
+
+@fig-nonracializedspaces aims to assess the relationship between non-racialized populations and children per child care space in Toronto's 25 wards. The plot shows a negative correlation between proportion populations identifying as non-racialized and children per child care space. 
+
+```{r}
+#| label: fig-nonracializedspaces
+#| fig-cap: Relationship between non-racialized population by ward and child care spaces
+#| warning: false
+#| message: false
+#| echo: false
+#| fig.pos: "H"
+
+merged_ward_childcare |>
+  ggplot(aes(x = ((total-visible_minority)/total)*100, y = total_under_15/total_spots)) +
+  geom_point(fill = "black", size = 1, shape = 23) +
+  geom_smooth(method = lm, color = "black") +
+  theme_minimal() +
+  labs(x = "Porportion of ward population identified as non-racialized (%)", y = "Children per child care space") 
+```  
+
 # Discussion {#sec-discussion}
 
-## First discussion point {#sec-first-point}
 
-The discussion is a chance to show off what you know and what you learnt from all this. 
 
-## Second discussion point
+## Average Household Income
 
-## Third discussion point
 
-## Weaknesses and next steps
+
+## English Speaking and Racialized Population
+
+
+
+## Weaknesses and Next Steps
 
 
 \newpage
@@ -406,6 +427,32 @@ The discussion is a chance to show off what you know and what you learnt from al
 
 # Appendix {-}
 
+```{r}
+#| label: tbl-mergeddata
+#| tbl-cap: Sample of Merged Licensed Child Care Centres in Toronto and Ward Profiles (2021 Census Data) used to build graphs
+#| echo: false
+#| warning: false
+#| layout-nrow: 2
+
+merged <-
+  merged_ward_childcare |>
+  select(ward, avg_hh_income, total_spots, total_under_15, total, visible_minority, english, prop)
+
+head(merged[c(1:4)], 3) |>
+  kable(
+    col.names = c("Ward Name", "Average Household Income", "Child Care Spaces", "Population Aged 0 - 14"),
+    booktabs = TRUE,
+    align = "l"
+  )
+
+head(merged[c(5:8)], 3) |>
+  kable(
+    col.names = c("Total Population", "Racialized Population", "English Speakng Population", "Children Per Space"),
+    booktabs = TRUE,
+    align = "l"
+  )
+
+```
 
 # Additional data details
 
@@ -413,9 +460,9 @@ The discussion is a chance to show off what you know and what you learnt from al
 
 ## Posterior predictive check
 
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
+In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows that the model can be used to simulate data similar to our source data.
 
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
+In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows how much the model's estimates change once the source data is incorporated. 
 
 ```{r}
 #| include: true
@@ -441,11 +488,11 @@ posterior_vs_prior(first_model) +
 
 ## Diagnostics
 
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
+@fig-plot displays the 95% credibility interval for the intercept, average income, and standard deviation (sigma)
 
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
+@fig-stanareyouokay-1 is a trace plot showing that after checking the model for inconsistencies, the model appears to be working properly.
 
-@fig-plot is a credibility interval plot
+@fig-stanareyouokay-2 is a Rhat plot, similarly showing that the model appears to be working properly.
 
 ```{r}
 #| include: true
