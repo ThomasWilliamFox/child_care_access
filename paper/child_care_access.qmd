@@ -272,6 +272,8 @@ merged_ward_childcare |>
   labs(x = "Ward", y = "Racialized population (%)")
 ```
 
+\newpage
+
 # Model {#sec-model}
 
 ```{r}
@@ -320,7 +322,6 @@ The model results are summarized in @tbl-modelresults. The inference model shows
 #| label: tbl-modelresults
 #| tbl-cap: "Explanatory Models of Child Care Spaces Based on Average Ward Income"
 #| warning: false
-#| fig.pos: "H"
 
 modelsummary::modelsummary(
   list(
@@ -331,6 +332,7 @@ modelsummary::modelsummary(
 )
 ```
 
+\newpage
 
 # Results {#sec-results}
 
@@ -431,13 +433,12 @@ Exploring the average cost of child care at each facility could help to provide 
 \newpage
 \appendix
 
-
 # Appendix {-}
 
 # Additional Data Details {#sec-data-details}
 
-In @tbl-mergeddata a sample of the merged data set used for the results section of this paper can be seen. 
-
+In @tbl-mergeddata a sample of the merged data set used for the results section of this paper can be seen.
+ 
 ```{r}
 #| label: tbl-mergeddata
 #| tbl-cap: Sample of Merged Licensed Child Care Centres in Toronto and Ward Profiles
@@ -541,11 +542,6 @@ plot(income_spaces_model, "trace")
 plot(income_spaces_model, "rhat")
 ```
 
-
-
 \clearpage
 
-
 # References
-
-
