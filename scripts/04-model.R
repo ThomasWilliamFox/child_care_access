@@ -1,11 +1,11 @@
 #### Preamble ####
-# Purpose: Models... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Models the effect of average household income on child care spaces
+# Author: Thomas Fox
+# Date: 23 April 2024
+# Contact: thomas.fox@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: Run 01-download_data.R and 02-data_cleaning.R
+# Any other information needed? n/a
 
 
 #### Workspace setup ####
@@ -25,7 +25,7 @@ merged_data <- merged_data |>
   mutate(language = english / total)
 
 ### Model data ####
-first_model <-
+income_spaces_model <-
   stan_glm(
     formula = prop ~ income,
     data = merged_data,
@@ -38,6 +38,6 @@ first_model <-
 
 #### Save model ####
 saveRDS(
-  first_model,
-  file = "models/first_model.rds"
+  income_spaces_model,
+  file = "models/income_spaces_model.rds"
 )

@@ -83,7 +83,7 @@ ward_names = read_parquet(
 
 Equitable access to child care is essential to the social and economic health of a community such as the City of Toronto. Access to child care has been shown have a positive impact occupational and educational opportunities for parents, especially those in lower income brackets [@childcare]. These economic advantages for parents and families bring benefits to their physical and social well-being [@childcare]. Child care access also impacts the health and development of children attending these facilities [@rhijn]. Vulnerable children disproportionately benefit from child care access as these centers help to facilitate early intervention methods [@underwood]. Equitable access to child care is therefore a vital facet of community health and development.
 
-This paper explores child care data from @caredata and ward data from @wards to explore child care access across the city of Toronto. These data sets are made freely available by Open Data Toronto [@opendatatoronto]. Data analysis and processing was performed using the programming language `R` [@citeR]. Various packages were used throughout the writing of this paper including `tidyverse` [@tidyverse], `arrow` [@arrow], `here` [@here], `ggmap` [@ggmap], `maps` [@maps], `knitr` [@knitr], `dplyr` [@dplyr], `janitor` [@janitor], and `rstanarm` [@rstanarm].    
+This paper explores child care data from @caredata and ward data from @wards to explore child care access across the city of Toronto. These data sets are made freely available by Open Data Toronto [@opendatatoronto]. Data analysis and processing was performed using the programming language `R` [@citeR]. Various packages were used throughout the writing of this paper including `tidyverse` [@tidyverse], `arrow` [@arrow], `here` [@here], `ggmap` [@ggmap], `maps` [@maps], `knitr` [@knitr], `dplyr` [@dplyr], `janitor` [@janitor], `lintr` [@lintr], and `rstanarm` [@rstanarm].    
 
 This analysis explores relationships between child care demand and various demographic metrics across Toronto's 25 wards (see [@sec-results]). The paper's estimand is that average household income is negatively correlated with the number of children per child care space by ward. The paper also explores the relationships between existing child care spaces and the proportion of racialized and non-native-English speaking populations by ward. These findings demonstrate inequitable access to child care across the city of Toronto. As child care plays a central role in the social and economic well-being of communities, and has an especially positive impact on vulnerable children and low-income families, these findings support measures and initiatives aimed at ensuring more equitable access to child care in the city of Toronto [see @strategy].
 
@@ -99,7 +99,6 @@ The "Licensed Child Care Centres" data set is provided to Open Data Toronto [@op
 #| tbl-cap: Sample of Cleaned Toronto Licensed Child Care Centre Data
 #| echo: false
 #| warning: false
-#| fig.pos: "H"
 
 child_care_table <- 
   child_care_data |>
@@ -120,7 +119,6 @@ head(child_care_table, 6) |>
 #| warning: false
 #| message: false
 #| echo: false
-#| fig.pos: "H"
 
 # Use google maps for box co-ordinates
 bbox_toronto <- c(left =-79.669692514001, bottom = 43.57044, right = -79.096000099990, top = 43.85090373064596)
@@ -237,13 +235,16 @@ merged_ward_childcare |>
   theme(axis.text.x = element_text(size = 7, angle = 45, vjust = 1, hjust=1)) +
   labs(x = "Ward", y = "Average household income")
 ```
+
+@fig-language shows the proportion of the population in each of Toronto's 25 wards that speaks English most often in their households. The wards with the lowest proportion of English speaking households in Toronto are Humber River-Black Creek with 41%, York South-Weston with 43%, and Toronto Centre with 48%. Toronto's wards with the highest proportion of English speaking households are Toronto-Danforth with 81%, Beaches-East York with 81%, and Park Dale-High Park with 82%.
+
 ```{r}
 #| label: fig-language
 #| fig-cap: Proportion of the Population in Each of Toronto's 25 Wards That Speak English Most Often at Home
 #| echo: false
 #| warning: false
-
-
+#| fig.pos: "H"
+  
 # Construct graph 
 merged_ward_childcare |>
   ggplot(aes(x = reorder(ward, 1:25), y = english/total*100)) +
@@ -253,7 +254,7 @@ merged_ward_childcare |>
   labs(x = "Ward", y = "English speaking households (%)")
 ```
 
-@fig-language shows the proportion of the population in each of Toronto's 25 wards that speaks English most often in their households. The wards with the lowest proportion of English speaking households in Toronto are Humber River-Black Creek with 41%, York South-Weston with 43%, and Toronto Centre with 48%. Toronto's wards with the highest proportion of English speaking households are Toronto-Danforth with 81%, Beaches-East York with 81%, and Park Dale-High Park with 82%.
+@fig-racialized shows the proportion of the population in each of Toronto's 25 wards that identifies as racialized. The wards with the lowest proportion of racialized population in Toronto are Parkdale-High Park with 29%, Etobicoke Centre with 32%, and Davenport with 34%. Toronto's wards with the highest proportion of racialized population are Etobicoke-North 78%, Scarborough-Agincourt with 82%, and Scarborough-North with 92%.
 
 ```{r}
 #| label: fig-racialized
@@ -271,9 +272,8 @@ merged_ward_childcare |>
   labs(x = "Ward", y = "Racialized population (%)")
 ```
 
-@fig-racialized shows the proportion of the population in each of Toronto's 25 wards that identifies as racialized. The wards with the lowest proportion of racialized population in Toronto are Parkdale-High Park with 29%, Etobicoke Centre with 32%, and Davenport with 34%. Toronto's wards with the highest proportion of racialized population are Etobicoke-North 78%, Scarborough-Agincourt with 82%, and Scarborough-North with 92%.
-
 # Model {#sec-model}
+
 ```{r}
 #| include: false
 #| echo: false
@@ -283,8 +283,8 @@ merged_ward_childcare |>
 
 library(rstanarm)
 
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
+income_spaces_model <-
+  readRDS(file = here::here("models/income_spaces_model.rds"))
 ```
 
 The goal of this paper's modelling strategy is to investigate the effect that average household income has on the number of children per existing child care space in each of Toronto's 25 wards.
@@ -311,20 +311,20 @@ A negative relationship is expected between average household income and the num
 
 ### Model Results 
 
-The model results are summarized in @tbl-modelresults. The model shows that the intercept, or children per child care space if $\beta_i$ were 0, would be 8.12. The model also shows that the impact of average household income being 1.0, or the maximum average income in Toronto's 25 wards is -5.64 children per child care space. This infers that average income has a negative relationship with the number of children per existing child care space in the city of Toronto. 
+The model results are summarized in @tbl-modelresults. The inference model shows that the intercept, or children per child care space if $\beta_i$ were 0, would be 8.12. The model also shows that the impact of average household income being 1.0, or the maximum average income in Toronto's 25 wards is -5.64 children per child care space. This infers that average income has a negative relationship with the number of children per existing child care space in the city of Toronto. 
 
 ```{r}
 #| include: true
 #| echo: false
 #| eval: true
 #| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
+#| tbl-cap: "Explanatory Models of Child Care Spaces Based on Average Ward Income"
 #| warning: false
 #| fig.pos: "H"
 
 modelsummary::modelsummary(
   list(
-    "First model" = first_model
+    "Income spaces model" = income_spaces_model
   ),
   statistic = "mad",
   fmt = 2
@@ -373,8 +373,6 @@ merged_ward_childcare |>
 
 @fig-languagespaces explores the relationship between English speaking household populations and children per child care space in Toronto's 25 wards. The plot displays a negative correlation between the proportion of English speaking populations and children per child care space. The two wards with the highest proportion of English speaking households, Parkdale-High Park and Beaches-East York, have 3.2 and 4.1 children per child care space. The two wards with the lowest proportion of English speaking households, Scarborough North and Scarborough-Agincourt have 6.2 and 6.1 children per child care space. The seven wards with the lowest proportion of English speaking households have an average of 6.42 children per child care space, while the seven wards with highest proportion of English speaking households have an average of 3.9. These findings suggest that wards with large proportions English speaking population proportions have decreased competition for child care spaces. 
 
-
-
 ```{r}
 #| label: fig-languagespaces
 #| fig-cap: Relationship between language and child care spaces
@@ -392,7 +390,6 @@ merged_ward_childcare |>
 ```
 
 @fig-nonracializedspaces examines the relationship between non-racialized populations and children per child care space in Toronto's 25 wards. The plot shows a negative correlation between proportion populations identifying as non-racialized and children per child care space. The two wards with the highest proportion of non-racialized population, Parkdale-High Park and Etobicoke Centre, have 3.24 and 5.16 children per child care space. The two wards with the lowest proportion of non-radicalized residents, Scarborough North and Scarborough-Agincourt have 6.2 and 6.1 children per child care space. The seven wards with the lowest proportion of non-racialized residents have an average of 6.62 children per child care space, while the seven wards with highest proportion of non-racialized residents have an average of 3.8. These findings suggest that wards with large proportions of their populations identifying as non-racialized have decreased competition for and increased supply of child care spaces. 
-
 
 ```{r}
 #| label: fig-nonracializedspaces
@@ -437,19 +434,20 @@ Exploring the average cost of child care at each facility could help to provide 
 
 # Appendix {-}
 
-# Additional Data Details {#data-details}
+# Additional Data Details {#sec-data-details}
 
 In @tbl-mergeddata a sample of the merged data set used for the results section of this paper can be seen. 
 
-
 ```{r}
-#| include: true
+#| label: tbl-mergeddata
+#| tbl-cap: Sample of Merged Licensed Child Care Centres in Toronto and Ward Profiles
 #| echo: false
 #| message: false
 #| warning: false
-#| label: tbl-mergeddata
-#| tbl-cap: Sample of Merged Licensed Child Care Centres in Toronto and Ward Profiles
+#| fig.pos: "H"
 #| layout-nrow: 2
+
+# If replicating this paper, please e-mail the author if you can figure out how to properly format/position this table in the .qmd document. 
 
 merged <-
   merged_ward_childcare |>
@@ -470,9 +468,9 @@ head(merged[c(5:8)], 3) |>
   ) 
 ```
 
-# Model details {#sec-model-details}
+# Model Details {#sec-model-details}
 
-## Posterior predictive check
+## Posterior Predictive Check
 
 In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows that the model can be used to simulate data similar to our source data.
 
@@ -488,12 +486,13 @@ In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. Th
 #| layout-ncol: 2
 #| fig-cap: "Examining how the model fits, and is affected by, the data"
 #| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
-
-pp_check(first_model) +
+#| fig.pos: "H"
+  
+pp_check(income_spaces_model) +
   theme_classic() +
   theme(legend.position = "bottom")
 
-posterior_vs_prior(first_model) +
+posterior_vs_prior(income_spaces_model) +
   theme_minimal() +
   scale_color_brewer(palette = "Set1") +
   theme(legend.position = "bottom") +
@@ -516,14 +515,14 @@ posterior_vs_prior(first_model) +
 #| warning: false
 #| label: fig-plot
 #| fig-cap: "Checking the credibility of the model"
-
+#| fig.pos: "H"
+  
 plot(
-  first_model,
+  income_spaces_model,
   "areas"
 )
 
 ```
-
 
 ```{r}
 #| include: true
@@ -535,10 +534,11 @@ plot(
 #| fig-cap: "Checking the convergence of the MCMC algorithm"
 #| fig-subcap: ["Trace plot", "Rhat plot"]
 #| layout-ncol: 2
+#| fig.pos: "H"
+  
+plot(income_spaces_model, "trace")
 
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
+plot(income_spaces_model, "rhat")
 ```
 
 
