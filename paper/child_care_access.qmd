@@ -359,7 +359,7 @@ merged_ward_childcare |>
 
 ```{r}
 #| label: fig-incomespaces
-#| fig-cap: Relationship between income and child care spaces
+#| fig-cap: Relationship Between Income and Child Care Spaces
 #| warning: false
 #| message: false
 #| echo: false
@@ -377,7 +377,7 @@ merged_ward_childcare |>
 
 ```{r}
 #| label: fig-languagespaces
-#| fig-cap: Relationship between language and child care spaces
+#| fig-cap: Relationship Between Language and Child Care Spaces
 #| warning: false
 #| message: false
 #| echo: false
@@ -395,7 +395,7 @@ merged_ward_childcare |>
 
 ```{r}
 #| label: fig-nonracializedspaces
-#| fig-cap: Relationship between non-racialized population by ward and child care spaces
+#| fig-cap: Relationship Between Non-racialized Population by Ward and Child Care Spaces
 #| warning: false
 #| message: false
 #| echo: false
